@@ -1,0 +1,22 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow update: if false; // only server may change profile/role
+      allow delete: if false;
+    }
+
+    match /requests/{reqId} {
+      allow create: if request.auth != null && request.resource.data.requesterId == request.auth.uid && request.resource.data.status == "Submitted";
+      allow read: if request.auth != null && (request.auth.uid == resource.data.requesterId || request.auth.token.role == "Approver" || request.auth.token.role == "Admin");
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    match /auditLogs/{logId} {
+      allow write: if false;
+      allow read: if request.auth != null && request.auth.token.role == "Admin";
+    }
+  }
+}

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:MauiApp1.Helpers"
+             xmlns:vm="clr-namespace:MauiApp1.ViewModels"
+             x:Class="MauiApp1.Views.RequestDetailsPage"
+             x:DataType="vm:RequestDetailsViewModel"
+             Title="Request details">
+
+  <ContentPage.Resources>
+    <ResourceDictionary>
+      <helpers:StatusToColorConverter x:Key="StatusToColor" />
+
+      <Style x:Key="FieldLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+        <Setter Property="TextTransform" Value="Uppercase" />
+      </Style>
+
+      <Style x:Key="FieldValue" TargetType="Label">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+      </Style>
+
+      <Style x:Key="SectionCard" TargetType="Border">
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="StrokeShape">
+          <Setter.Value>
+            <RoundRectangle CornerRadius="12" />
+          </Setter.Value>
+        </Setter>
+      </Style>
+
+      <Style x:Key="SectionHeader" TargetType="Label">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Margin" Value="0,8,0,8" />
+      </Style>
+    </ResourceDictionary>
+  </ContentPage.Resources>
+
+  <Grid>
+    <!-- Loading -->
+    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                       IsVisible="{Binding IsBusy}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+
+    <!-- Whole-page error -->
+    <VerticalStackLayout IsVisible="{Binding HasLoadError}"
+                         Padding="40" Spacing="12"
+                         VerticalOptions="Center">
+      <Label Text="Couldn't load request"
+             FontSize="18" FontAttributes="Bold"
+             HorizontalOptions="Center" />
+      <Label Text="{Binding LoadError}"
+             HorizontalTextAlignment="Center"
+             TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+      <Button Text="Go back"
+              Command="{Binding GoBackCommand}"
+              Margin="0,8,0,0" />
+    </VerticalStackLayout>
+
+    <!-- Content -->
+    <ScrollView IsVisible="{Binding HasRequest}">
+      <VerticalStackLayout Padding="20" Spacing="16">
+
+        <!-- Header -->
+        <Grid ColumnDefinitions="*,Auto">
+          <Label Grid.Column="0"
+                 Text="{Binding BusinessSystem}"
+                 FontSize="22" FontAttributes="Bold"
+                 VerticalOptions="Center"
+                 LineBreakMode="WordWrap" />
+
+          <Border Grid.Column="1"
+                  BackgroundColor="{Binding Status, Converter={StaticResource StatusToColor}}"
+                  Padding="10,4"
+                  VerticalOptions="Center">
+            <Border.StrokeShape>
+              <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Label Text="{Binding StatusLabel}"
+                   TextColor="White"
+                   FontSize="12"
+                   FontAttributes="Bold" />
+          </Border>
+        </Grid>
+
+        <!-- Request card -->
+        <Border Style="{StaticResource SectionCard}">
+          <VerticalStackLayout>
+            <Label Text="Request" Style="{StaticResource SectionHeader}" />
+
+            <Label Text="Access role" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding AccessRole}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Justification" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding Justification}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Submitted" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding SubmittedAtDisplay}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Last updated" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding UpdatedAtDisplay}" Style="{StaticResource FieldValue}" />
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- Requester card -->
+        <Border Style="{StaticResource SectionCard}">
+          <VerticalStackLayout>
+            <Label Text="Requester" Style="{StaticResource SectionHeader}" />
+
+            <Label Text="Name" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding RequesterName}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Email" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding RequesterEmail}" Style="{StaticResource FieldValue}" />
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- Decision card -->
+        <Border Style="{StaticResource SectionCard}"
+                IsVisible="{Binding HasDecision}">
+          <VerticalStackLayout>
+            <Label Text="Decision" Style="{StaticResource SectionHeader}" />
+
+            <Label Text="Approver" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding ApproverName}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Comments" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding ApprovalComments}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Decided" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding DecidedAtDisplay}" Style="{StaticResource FieldValue}" />
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- Provisioning card -->
+        <Border Style="{StaticResource SectionCard}"
+                IsVisible="{Binding HasProvisioning}">
+          <VerticalStackLayout>
+            <Label Text="Provisioning" Style="{StaticResource SectionHeader}" />
+
+            <Label Text="Status" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding ProvisioningStatus}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Message" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding ProvisioningMessage}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Completed" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding ProvisionedAtDisplay}" Style="{StaticResource FieldValue}" />
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- Action-level error -->
+        <Label Text="{Binding ErrorMessage}"
+               TextColor="Red"
+               IsVisible="{Binding HasActionError}" />
+
+        <!-- Cancel button -->
+        <Button Text="Cancel this request"
+                Command="{Binding CancelRequestCommand}"
+                BackgroundColor="DarkRed"
+                TextColor="White"
+                IsVisible="{Binding CanCancel}"
+                Margin="0,12,0,0" />
+      </VerticalStackLayout>
+    </ScrollView>
+  </Grid>
+</ContentPage>

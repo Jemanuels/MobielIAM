@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MauiApp1.Models"
+             xmlns:helpers="clr-namespace:MauiApp1.Helpers"
+             xmlns:vm="clr-namespace:MauiApp1.ViewModels"
+             x:Class="MauiApp1.Views.ApprovalQueuePage"
+             x:Name="ThisPage"
+             x:DataType="vm:ApprovalQueueViewModel"
+             Title="Approval queue">
+
+  <ContentPage.Resources>
+    <ResourceDictionary>
+      <helpers:StatusToColorConverter x:Key="StatusToColor" />
+    </ResourceDictionary>
+  </ContentPage.Resources>
+
+  <Grid RowDefinitions="*,Auto">
+
+    <RefreshView Grid.Row="0"
+                 IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding LoadCommand}">
+
+      <CollectionView ItemsSource="{Binding Items}"
+                      SelectionMode="None">
+
+        <CollectionView.EmptyView>
+          <VerticalStackLayout Padding="40" Spacing="12"
+                               VerticalOptions="Center" HorizontalOptions="Center">
+            <Label Text="Inbox zero"
+                   FontSize="18" FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+            <Label Text="There are no pending requests waiting on you."
+                   FontSize="14"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+          </VerticalStackLayout>
+        </CollectionView.EmptyView>
+
+        <CollectionView.ItemTemplate>
+          <DataTemplate x:DataType="models:AccessRequest">
+            <Border Margin="16,8" Padding="14" StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+              <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+              </Border.StrokeShape>
+
+              <Border.GestureRecognizers>
+                <TapGestureRecognizer
+                    Command="{Binding BindingContext.OpenCommand, Source={x:Reference ThisPage}}"
+                    CommandParameter="{Binding .}" />
+              </Border.GestureRecognizers>
+
+              <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+
+                <Label Grid.Row="0" Grid.Column="0"
+                       Text="{Binding RequesterDisplayName}"
+                       FontSize="16" FontAttributes="Bold"
+                       LineBreakMode="TailTruncation" />
+
+                <Border Grid.Row="0" Grid.Column="1"
+                        BackgroundColor="{Binding Status, Converter={StaticResource StatusToColor}}"
+                        Padding="8,2"
+                        VerticalOptions="Center">
+                  <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="6" />
+                  </Border.StrokeShape>
+                  <Label Text="{Binding Status}"
+                         TextColor="White"
+                         FontSize="11"
+                         FontAttributes="Bold" />
+                </Border>
+
+                <Label Grid.Row="1" Grid.ColumnSpan="2"
+                       Text="{Binding BusinessSystemName, StringFormat='wants access to: {0}'}"
+                       FontSize="14" />
+
+                <Label Grid.Row="2" Grid.ColumnSpan="2"
+                       Text="{Binding AccessRoleRequested, StringFormat='Role: {0}'}"
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+
+                <Label Grid.Row="3" Grid.ColumnSpan="2"
+                       Text="{Binding CreatedAt, StringFormat='Submitted {0:dd MMM yyyy, HH:mm}'}"
+                       FontSize="12"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </CollectionView.ItemTemplate>
+      </CollectionView>
+    </RefreshView>
+
+    <Label Grid.Row="1"
+           Text="{Binding ErrorMessage}"
+           TextColor="White"
+           BackgroundColor="DarkRed"
+           Padding="16,12"
+           IsVisible="{Binding HasError}" />
+  </Grid>
+</ContentPage>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MauiApp1.ViewModels"
+             x:Class="MauiApp1.Views.EditBusinessSystemPage"
+             x:DataType="vm:EditBusinessSystemViewModel"
+             Title="{Binding PageTitle}">
+
+  <ContentPage.Resources>
+    <ResourceDictionary>
+      <Style x:Key="FieldLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Margin" Value="0,8,0,0" />
+      </Style>
+      <Style x:Key="HelperText" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+      </Style>
+      <Style x:Key="SectionHeader" TargetType="Label">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Margin" Value="0,16,0,4" />
+      </Style>
+    </ResourceDictionary>
+  </ContentPage.Resources>
+
+  <ScrollView>
+    <VerticalStackLayout Padding="20" Spacing="6">
+
+      <Label Text="{Binding PageTitle}" FontSize="20" FontAttributes="Bold" />
+      <Label Text="Define the system requesters can ask access to and which roles are available within it."
+             Style="{StaticResource HelperText}"
+             Margin="0,0,0,12" />
+
+      <Label Text="Name" Style="{StaticResource FieldLabel}" />
+      <Entry Placeholder="e.g. Salesforce Developer" Text="{Binding Name}" />
+
+      <Label Text="Description" Style="{StaticResource FieldLabel}" />
+      <Editor Placeholder="Short description shown alongside the system name."
+              Text="{Binding Description}"
+              AutoSize="TextChanges"
+              HeightRequest="80" />
+
+      <Label Text="Available roles" Style="{StaticResource FieldLabel}" />
+      <Entry Placeholder="Standard User, Read only" Text="{Binding RolesText}" />
+      <Label Text="Comma-separated. Requesters will pick from this list."
+             Style="{StaticResource HelperText}" />
+
+      <Grid ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+        <Label Grid.Column="0" Text="Active" Style="{StaticResource FieldLabel}" VerticalOptions="Center" />
+        <Switch Grid.Column="1" IsToggled="{Binding IsActive}" />
+      </Grid>
+      <Label Text="When inactive, the system is hidden from the requester form but stays in the database."
+             Style="{StaticResource HelperText}" />
+
+      <!-- ============== ENTRA INTEGRATION ============== -->
+      <Label Text="Entra integration (optional)" Style="{StaticResource SectionHeader}" />
+      <Label Text="If you want approved requests for this system to automatically provision the user into a real Entra enterprise application, fill in these two fields. Leave blank to skip provisioning."
+             Style="{StaticResource HelperText}"
+             Margin="0,0,0,8" />
+
+      <Label Text="Entra service principal Object ID" Style="{StaticResource FieldLabel}" />
+      <Entry Placeholder="bd64e3b6-94a8-4f5a-80e0-eae488fe966d"
+             Text="{Binding EntraServicePrincipalId}" />
+      <Label Text="The Object ID of the Enterprise Application in Entra (not the App Registration)."
+             Style="{StaticResource HelperText}" />
+
+      <Label Text="App role mappings" Style="{StaticResource FieldLabel}" />
+      <Editor Text="{Binding EntraRoleMappingsText}"
+              AutoSize="TextChanges"
+              HeightRequest="100"
+              FontFamily="Courier New" />
+      <Label Text="One per line, in the form: RoleName=GUID. The role name on the left must match a role from the list above. The GUID on the right comes from the Entra enterprise app's app roles."
+             Style="{StaticResource HelperText}" />
+      <Label Text="Example:&#10;Standard User=63406193-1ac3-4d89-9b08-476b439ab42b"
+             Style="{StaticResource HelperText}"
+             FontFamily="Courier New" />
+
+      <!-- ============== ERROR + ACTIONS ============== -->
+      <Label Text="{Binding ErrorMessage}"
+             TextColor="Red"
+             FontSize="14"
+             IsVisible="{Binding HasError}"
+             Margin="0,12,0,0" />
+
+      <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+      <Button Text="Save"
+              Command="{Binding SaveCommand}"
+              Margin="0,12,0,0" />
+
+      <Button Text="Cancel"
+              Command="{Binding CancelCommand}"
+              BackgroundColor="Transparent"
+              TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
+
+    </VerticalStackLayout>
+  </ScrollView>
+</ContentPage>

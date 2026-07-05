@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.Views.LoginPage"
+             Title="Login">
+  <!-- BindingContext is set in code-behind via DI. Do NOT create the
+       ViewModel in XAML — it has constructor dependencies. -->
+
+  <ScrollView>
+    <VerticalStackLayout Padding="24" Spacing="12" VerticalOptions="Center">
+      <Label Text="Sign in"
+             FontSize="28"
+             FontAttributes="Bold"
+             HorizontalOptions="Center" />
+
+      <Entry Placeholder="Email"
+             Text="{Binding Email}"
+             Keyboard="Email" />
+
+      <Entry Placeholder="Password"
+             Text="{Binding Password}"
+             IsPassword="True" />
+
+      <!-- Empty when ErrorMessage is null. Takes up no visible space. -->
+      <Label Text="{Binding ErrorMessage}"
+             TextColor="Red"
+             FontSize="14" />
+
+      <ActivityIndicator IsRunning="{Binding IsBusy}"
+                         IsVisible="{Binding IsBusy}" />
+
+      <Button Text="Login"
+              Command="{Binding LoginCommand}" />
+
+      <Button Text="Don't have an account? Register"
+              Clicked="OnRegisterClicked"
+              BackgroundColor="Transparent"
+              TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
+    </VerticalStackLayout>
+  </ScrollView>
+</ContentPage>

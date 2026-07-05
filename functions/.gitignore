@@ -1,0 +1,8 @@
+node_modules/
+*.local
+*.log
+.env
+.env.local
+.env.kissiam
+firebase-debug.log
+firebase-debug.*.log

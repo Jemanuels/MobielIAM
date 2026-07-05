@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MauiApp1.ViewModels"
+             x:Class="MauiApp1.Views.NewAccessRequestPage"
+             x:DataType="vm:NewAccessRequestViewModel"
+             Title="New access request">
+
+  <ContentPage.Resources>
+    <ResourceDictionary>
+      <Style x:Key="FieldLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Margin" Value="0,8,0,0" />
+      </Style>
+      <Style x:Key="HelperText" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+      </Style>
+    </ResourceDictionary>
+  </ContentPage.Resources>
+
+  <Grid>
+    <!-- Loading -->
+    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                       IsVisible="{Binding IsLoading}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+
+    <!-- No-systems empty state -->
+    <VerticalStackLayout IsVisible="{Binding NoSystemsAvailable}"
+                         Padding="40" Spacing="12"
+                         VerticalOptions="Center">
+      <Label Text="No systems configured yet"
+             FontSize="18" FontAttributes="Bold"
+             HorizontalOptions="Center" />
+      <Label Text="Ask your admin to add business systems before submitting a request."
+             FontSize="14"
+             HorizontalTextAlignment="Center"
+             TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+      <Button Text="Go back"
+              Command="{Binding CancelCommand}"
+              Margin="0,8,0,0" />
+    </VerticalStackLayout>
+
+    <!-- Form -->
+    <ScrollView IsVisible="{Binding HasSystems}">
+      <VerticalStackLayout Padding="20" Spacing="6">
+
+        <Label Text="Submit an access request"
+               FontSize="20" FontAttributes="Bold" />
+        <Label Text="Choose a system, pick the role you need, and explain why you need it."
+               Style="{StaticResource HelperText}"
+               Margin="0,0,0,12" />
+
+        <Label Text="Business system" Style="{StaticResource FieldLabel}" />
+        <Picker Title="Select a business system"
+                ItemsSource="{Binding Systems}"
+                ItemDisplayBinding="{Binding Name}"
+                SelectedItem="{Binding SelectedSystem}" />
+
+        <Label Text="Access role" Style="{StaticResource FieldLabel}" />
+        <Picker Title="Select an access role"
+                ItemsSource="{Binding AvailableRoles}"
+                SelectedItem="{Binding SelectedRole}" />
+        <Label Text="Options depend on the system you selected above."
+               Style="{StaticResource HelperText}" />
+
+        <Label Text="Justification" Style="{StaticResource FieldLabel}" />
+        <Editor Placeholder="Explain why you need this access and how long you expect to need it."
+                Text="{Binding Justification}"
+                AutoSize="TextChanges"
+                HeightRequest="120" />
+
+        <Label Text="{Binding ErrorMessage}"
+               TextColor="Red"
+               FontSize="14"
+               Margin="0,12,0,0" />
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}" />
+
+        <Button Text="Submit request"
+                Command="{Binding SubmitCommand}"
+                Margin="0,12,0,0" />
+
+        <Button Text="Cancel"
+                Command="{Binding CancelCommand}"
+                BackgroundColor="Transparent"
+                TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
+
+      </VerticalStackLayout>
+    </ScrollView>
+  </Grid>
+</ContentPage>

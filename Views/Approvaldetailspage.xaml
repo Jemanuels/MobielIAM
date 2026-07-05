@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:MauiApp1.Helpers"
+             xmlns:vm="clr-namespace:MauiApp1.ViewModels"
+             x:Class="MauiApp1.Views.ApprovalDetailsPage"
+             x:DataType="vm:ApprovalDetailsViewModel"
+             Title="Review request">
+
+  <ContentPage.Resources>
+    <ResourceDictionary>
+      <helpers:StatusToColorConverter x:Key="StatusToColor" />
+
+      <Style x:Key="FieldLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+        <Setter Property="TextTransform" Value="Uppercase" />
+      </Style>
+      <Style x:Key="FieldValue" TargetType="Label">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+      </Style>
+      <Style x:Key="SectionCard" TargetType="Border">
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}" />
+        <Setter Property="Padding" Value="16" />
+        <Setter Property="StrokeShape">
+          <Setter.Value>
+            <RoundRectangle CornerRadius="12" />
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style x:Key="SectionHeader" TargetType="Label">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="Margin" Value="0,8,0,8" />
+      </Style>
+    </ResourceDictionary>
+  </ContentPage.Resources>
+
+  <Grid>
+    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                       IsVisible="{Binding IsBusy}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+
+    <VerticalStackLayout IsVisible="{Binding HasLoadError}"
+                         Padding="40" Spacing="12"
+                         VerticalOptions="Center">
+      <Label Text="Couldn't load request"
+             FontSize="18" FontAttributes="Bold"
+             HorizontalOptions="Center" />
+      <Label Text="{Binding LoadError}"
+             HorizontalTextAlignment="Center"
+             TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+      <Button Text="Go back"
+              Command="{Binding GoBackCommand}"
+              Margin="0,8,0,0" />
+    </VerticalStackLayout>
+
+    <ScrollView IsVisible="{Binding HasRequest}">
+      <VerticalStackLayout Padding="20" Spacing="16">
+
+        <!-- Header -->
+        <Grid ColumnDefinitions="*,Auto">
+          <VerticalStackLayout Grid.Column="0" Spacing="2">
+            <Label Text="{Binding RequesterName}"
+                   FontSize="22" FontAttributes="Bold"
+                   LineBreakMode="WordWrap" />
+            <Label Text="{Binding RequesterEmail}"
+                   FontSize="13"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+          </VerticalStackLayout>
+
+          <Border Grid.Column="1"
+                  BackgroundColor="{Binding Status, Converter={StaticResource StatusToColor}}"
+                  Padding="10,4"
+                  VerticalOptions="Center">
+            <Border.StrokeShape>
+              <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <Label Text="{Binding StatusLabel}"
+                   TextColor="White"
+                   FontSize="12"
+                   FontAttributes="Bold" />
+          </Border>
+        </Grid>
+
+        <!-- Request card -->
+        <Border Style="{StaticResource SectionCard}">
+          <VerticalStackLayout>
+            <Label Text="Request" Style="{StaticResource SectionHeader}" />
+
+            <Label Text="Business system" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding BusinessSystem}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Access role" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding AccessRole}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Justification" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding Justification}" Style="{StaticResource FieldValue}" />
+
+            <Label Text="Submitted" Style="{StaticResource FieldLabel}" />
+            <Label Text="{Binding SubmittedAtDisplay}" Style="{StaticResource FieldValue}" />
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- Decision form — shown only if we can still decide -->
+        <Border Style="{StaticResource SectionCard}"
+                IsVisible="{Binding CanDecide}">
+          <VerticalStackLayout>
+            <Label Text="Your decision" Style="{StaticResource SectionHeader}" />
+
+            <Label Text="Comments (required to reject)" Style="{StaticResource FieldLabel}" />
+            <Editor Placeholder="Optional for approval, required for rejection."
+                    Text="{Binding Comments}"
+                    AutoSize="TextChanges"
+                    HeightRequest="100" />
+
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="Red"
+                   IsVisible="{Binding HasActionError}"
+                   Margin="0,8,0,0" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,12,0,0">
+              <Button Grid.Column="0"
+                      Text="Approve"
+                      Command="{Binding ApproveCommand}"
+                      BackgroundColor="#1B873F"
+                      TextColor="White" />
+              <Button Grid.Column="1"
+                      Text="Reject"
+                      Command="{Binding RejectCommand}"
+                      BackgroundColor="#B42318"
+                      TextColor="White" />
+            </Grid>
+          </VerticalStackLayout>
+        </Border>
+
+        <!-- Self-request warning -->
+        <Border Style="{StaticResource SectionCard}"
+                IsVisible="{Binding IsSelfRequest}"
+                BackgroundColor="#FEF3C7">
+          <Label Text="You can't approve a request that you submitted yourself. This is a separation-of-duties safeguard."
+                 FontSize="14"
+                 TextColor="#92400E" />
+        </Border>
+
+        <!-- Already decided notice -->
+        <Border Style="{StaticResource SectionCard}"
+                IsVisible="{Binding AlreadyDecided}">
+          <Label Text="{Binding DecisionSummary}"
+                 FontSize="14" />
+        </Border>
+
+      </VerticalStackLayout>
+    </ScrollView>
+  </Grid>
+</ContentPage>

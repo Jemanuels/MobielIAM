@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MauiApp1.Models"
+             xmlns:helpers="clr-namespace:MauiApp1.Helpers"
+             xmlns:vm="clr-namespace:MauiApp1.ViewModels"
+             x:Class="MauiApp1.Views.MyRequestsPage"
+             x:Name="ThisPage"
+             x:DataType="vm:MyRequestsViewModel"
+             Title="My requests">
+
+  <ContentPage.Resources>
+    <ResourceDictionary>
+      <helpers:StatusToColorConverter x:Key="StatusToColor" />
+    </ResourceDictionary>
+  </ContentPage.Resources>
+
+  <Grid RowDefinitions="*,Auto">
+
+    <RefreshView Grid.Row="0"
+                 IsRefreshing="{Binding IsRefreshing}"
+                 Command="{Binding LoadCommand}">
+
+      <CollectionView ItemsSource="{Binding Items}"
+                      SelectionMode="None">
+
+        <CollectionView.EmptyView>
+          <VerticalStackLayout Padding="40" Spacing="12"
+                               VerticalOptions="Center" HorizontalOptions="Center">
+            <Label Text="No requests yet"
+                   FontSize="18" FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+            <Label Text="When you submit an access request it will appear here."
+                   FontSize="14"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+            <Button Text="New access request"
+                    Command="{Binding GoToNewRequestCommand}"
+                    Margin="0,8,0,0" />
+          </VerticalStackLayout>
+        </CollectionView.EmptyView>
+
+        <CollectionView.ItemTemplate>
+          <DataTemplate x:DataType="models:AccessRequest">
+            <Border Margin="16,8" Padding="14" StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Gray900}}">
+              <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+              </Border.StrokeShape>
+
+              <Border.GestureRecognizers>
+                <!-- Bind through the page's BindingContext (the VM) using x:Reference.
+                     We can't bind directly to OpenCommand because inside the DataTemplate
+                     the BindingContext is the AccessRequest item, not the VM. -->
+                <TapGestureRecognizer
+                    Command="{Binding BindingContext.OpenCommand, Source={x:Reference ThisPage}}"
+                    CommandParameter="{Binding .}" />
+              </Border.GestureRecognizers>
+
+              <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                <Label Grid.Row="0" Grid.Column="0"
+                       Text="{Binding BusinessSystemName}"
+                       FontSize="16" FontAttributes="Bold"
+                       LineBreakMode="TailTruncation" />
+
+                <Border Grid.Row="0" Grid.Column="1"
+                        BackgroundColor="{Binding Status, Converter={StaticResource StatusToColor}}"
+                        Padding="8,2"
+                        VerticalOptions="Center">
+                  <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="6" />
+                  </Border.StrokeShape>
+                  <Label Text="{Binding Status}"
+                         TextColor="White"
+                         FontSize="11"
+                         FontAttributes="Bold" />
+                </Border>
+
+                <Label Grid.Row="1" Grid.ColumnSpan="2"
+                       Text="{Binding AccessRoleRequested, StringFormat='Role: {0}'}"
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray300}}" />
+
+                <Label Grid.Row="2" Grid.ColumnSpan="2"
+                       Text="{Binding CreatedAt, StringFormat='Submitted {0:dd MMM yyyy, HH:mm}'}"
+                       FontSize="12"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </CollectionView.ItemTemplate>
+      </CollectionView>
+    </RefreshView>
+
+    <Label Grid.Row="1"
+           Text="{Binding ErrorMessage}"
+           TextColor="White"
+           BackgroundColor="DarkRed"
+           Padding="16,12"
+           IsVisible="{Binding HasError}" />
+  </Grid>
+</ContentPage>
